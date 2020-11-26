@@ -1,5 +1,7 @@
 const express = require("express");
 const mysql = require('mysql');
+const {bacon} = require('./node.js')
+
 
 const app = express();
 
@@ -24,15 +26,21 @@ connection.connect(function (err) {
         return;
     }
 
-    console.log("EUERKA!!! " + connection.threadId.Id)
+    console.log("EUERKA!!! " + connection.threadId)
+
+    
+   
 });
+
 
 
 
 
 app.listen(PORT, function () {
     console.log("CONGRATULATIONS, you did NOT play yourself.  Server open on " + PORT)
+    
 })
 
+console.log(bacon)
 
 
