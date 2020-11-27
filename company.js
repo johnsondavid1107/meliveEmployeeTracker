@@ -37,29 +37,52 @@ inquirer.prompt([
 
         }
 
+    },
+    {
+        type: "input",
+        name: "firstName",
+        message: "What is the first name?"
+    },
+    {
+        type: "input",
+        name: "lastName",
+        message: "What is the last name?"
     }
 
-]).then(answers => {
-    
-    connection.connect(function (err) {
-        if (err) {
-            console.error("No Go my guy, failure connecting to database " + err.stack)
-            return;
-        }
-        console.log("EUERKA!!! " + connection.threadId)
-        connection.query("SELECT * FROM employee", function (err, res) {
-            if (err) throw err;
-            console.table(res)
-            connection.end();
-        })
-    });
-    
 
+
+]).then(answers => {
+    if (answers.what === "Add?") {
+        addEmployee(answers);
+
+    }
+    console.log("testing", "line 59")
 
 }).catch(error => {
     console.log(error);
 })
 
 
+
+
+function addEmployee(answers) {
+    connection.connect(function (err) {
+        
+        if (err) {
+            console.error("No Go my guy, failure connecting to database " + err.stack)
+            return;
+        }
+        console.log("EUERKA!!! " + connection.threadId)
+        connection.query("INSERT INTO employee (first_name) VALUES (?)", [answers.firstName], function (err, res) {
+            console.log("is it here line77")
+            if (err) throw err;
+            console.log("maybe here line79")
+            console.table(res)
+            // connection.end();
+            console.log(answers.firstName,"line79")
+        })
+    });
+
+}
 
 
