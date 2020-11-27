@@ -41,12 +41,18 @@ inquirer.prompt([
     {
         type: "input",
         name: "firstName",
-        message: "What is the first name?"
+        message: "What is the first name?",
+        when: function (answers){
+            return answers.what === 'Update Employee Roles'
+        }
     },
     {
         type: "input",
         name: "lastName",
-        message: "What is the last name?"
+        message: "What is the last name?",
+        when: function (answers) {
+            return answers.what === 'Update Employee Roles'
+        }
     }
 
 
@@ -55,9 +61,9 @@ inquirer.prompt([
     if (answers.what === "Add?") {
         addEmployee(answers);
 
+    }else if (answers.what === "View?"){
+        viewEmployee(answers);
     }
-    console.log("testing", "line 59")
-
 }).catch(error => {
     console.log(error);
 })
@@ -74,15 +80,33 @@ function addEmployee(answers) {
         }
         console.log("EUERKA!!! " + connection.threadId)
         connection.query("INSERT INTO employee (first_name) VALUES (?)", [answers.firstName], function (err, res) {
-            console.log("is it here line77")
             if (err) throw err;
-            console.log("maybe here line79")
-            console.table(res)
             // connection.end();
-            console.log(answers.firstName,"line79")
+            console.log(answers.firstName,"line82")
+            console.log(res + "Input received!");
         })
+        
+
+
     });
 
+}
+
+function viewEmployee(answers) {
+    connection.connect(function (err) {
+
+        if (err) {
+            console.error("The viewEmployee didnt work" + err.stack)
+            return;
+        }
+        console.log("yay! " + connection.threadId)
+        connection.query("SELECT * FROM employee;", function(err,res) {
+            if(err) {
+                return;
+            }
+            console.table(res)
+        })
+    })
 }
 
 
