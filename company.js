@@ -43,7 +43,8 @@ inquirer.prompt([
         name: "firstName",
         message: "What is the first name?",
         when: function (answers){
-            return answers.what === 'Update Employee Roles'
+            return answers.what === 'Update Employee Roles' || 
+            answers.what ==="Add?";
         }
     },
     {
@@ -51,7 +52,8 @@ inquirer.prompt([
         name: "lastName",
         message: "What is the last name?",
         when: function (answers) {
-            return answers.what === 'Update Employee Roles'
+            return answers.what === 'Update Employee Roles' || 
+            answers.what === "Add?";
         }
     }
 
@@ -79,12 +81,13 @@ function addEmployee(answers) {
             return;
         }
         console.log("EUERKA!!! " + connection.threadId)
-        connection.query("INSERT INTO employee (first_name) VALUES (?)", [answers.firstName], function (err, res) {
+        connection.query("INSERT INTO employee (first_name, last_name) VALUES (?,?)", [answers.firstName, answers.lastName], function (err, res) {
             if (err) throw err;
             // connection.end();
-            console.log(answers.firstName,"line82")
-            console.log(res + "Input received!");
-        })
+            console.log(answers.firstName,"line87")
+            console.log("Input received!");
+        });
+    
         
 
 
