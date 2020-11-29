@@ -48,57 +48,95 @@ function commenceSequence() {
 
 
 function viewEmployee() {
-    inquirer.prompt([
-       
-        {
-            type: 'list',
-            name: 'optionsAll',
-            message: 'Which would you like?',
-            choices: [
-                'View all employees',
-                'View All Employees by Department'
-            ]
+    connection.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
 
-        },
+        inquirer.prompt([
 
-    ])
-        .then(function (answers) {
-            connection.connect(function (err) {
-                if (answers.optionsAll === "View all employees") {
-                    console.log(answers.optionsAll)
-                    connection.query(`SELECT * FROM employee`, function (err, res) {
-                        if (err) throw err;
-                        console.table(res)
-                        commenceSequence();
-                    })
+            {
+                type: 'list',
+                name: 'optionsAll',
+                message: 'Which would you like?',
+                choices: [
+                    'View all employees',
+                    'View All Employees by Department'
+                ]
 
+            },
 
-                } else {
-                    let choice = answers.options
-                    connection.query(`SELECT * FROM ${choice} ;`, function (err, res) {
-                        if (err) {
-                            console.error(err.stack)
-                            return;
-                        }
-                        console.table(res)
-                        commenceSequence();
-
-
-                    })
-
+            {
+                type: "rawlist",
+                name: "select",
+                message: "Which Dept would you like to see?",
+                choices: function () {
+                    let selectionArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        selectionArray.push(res[i].dept_name)
+                    }
+                    return selectionArray;
                 }
+            }
 
 
+
+
+
+
+
+        ])
+            .then(function (answers) {
+                connection.connect(function (err) {
+                    let pick = answers.select;
+                    if (pick === "Front Desk") {
+                        pick = 1
+                    } else if (pick === "Housekeeping") {
+                        pick = 2
+                    } else if (pick === "Sales") {
+                        pick = 3
+                    } else if (pick === "Engineering") {
+                        pick = 4
+                    } else {
+                        pick = 5
+                    }
+
+                    if (answers.optionsAll === "View all employees") {
+                        console.log(answers.optionsAll)
+                        connection.query(`SELECT * FROM employee`, function (err, res) {
+                            if (err) throw err;
+                            console.table(res)
+                            commenceSequence();
+                        })
+
+
+                    } else {
+                        let choice = answers.options
+                        connection.query(`SELECT first_name, last_name, dept_name
+                    FROM employee
+                    INNER JOIN department ON department.id = role_id
+                    WHERE department.id = ${pick};`, function (err, res) {
+                            if (err) {
+                                console.error(err.stack)
+                                return;
+                            }
+                            console.table(res)
+                            commenceSequence();
+
+
+                        })
+
+                    }
+
+
+
+
+
+                })
 
 
 
             })
 
-
-
-        })
-
-
+    })
 
 }
 
@@ -107,15 +145,6 @@ function viewEmployee() {
 
 
 //
-
-
-
-
-
-
-
-
-
 
 // {
 //     type: "input",
@@ -220,11 +249,12 @@ function addEmployee(answers) {
                 // connection.end();
                 console.log(answers.firstName, "line87")
                 console.log("Input received!");
+                commenceSequence();
             });
 
 
 
-            commenceSequence();
+
         })
     })
 
