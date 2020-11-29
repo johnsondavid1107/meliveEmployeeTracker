@@ -35,7 +35,7 @@ function commenceSequence() {
             if (answers.what === "View?") {
                 viewEmployee();
 
-            } else if (answers.what === "Add?") {
+            } else if (answers.what === "Add Employee?") {
                 addEmployee();
             } else if (answers.what === "Update Employee Roles") {
                 updateEmployee();
