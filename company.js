@@ -74,8 +74,12 @@ function viewEmployee() {
                         selectionArray.push(res[i].dept_name)
                     }
                     return selectionArray;
+                },
+                when: function (answers) {
+                    return answers.optionsAll !== "View all employees"
                 }
             }
+
 
 
 
@@ -196,7 +200,7 @@ function viewEmployee() {
 
 
 function addEmployee(answers) {
-    connection.query("SELECT * FROM department", function (err, res) {
+    connection.query("SELECT * FROM role", function (err, res) {
         if (err) throw err;
 
 
@@ -218,11 +222,11 @@ function addEmployee(answers) {
             {
                 type: "rawlist",
                 name: "select",
-                message: "Which Dept do they work for?",
+                message: "Please select a role?",
                 choices: function () {
                     let selectionArray = [];
-                    for (let i = 0; i < res.length; i++) {
-                        selectionArray.push(res[i].dept_name)
+                    for (let i = 0; i < res.length ; i++) {
+                        selectionArray.push(res[i].title)
                     }
                     return selectionArray;
                 }
