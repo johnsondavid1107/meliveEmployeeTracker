@@ -48,72 +48,65 @@ function commenceSequence() {
 
 
 function viewEmployee() {
-
-    inquirer.prompt(
-
-
+    inquirer.prompt([
+       
         {
             type: 'list',
-            name: 'options',
-            message: 'Which would you like to view?',
+            name: 'optionsAll',
+            message: 'Which would you like?',
             choices: [
-                'department',
-                'role',
-                'employee'
-            ],
-
+                'View all employees',
+                'View All Employees by Department'
+            ]
 
         },
 
-    ).then(function(answers) {
-        connection.connect(function (err) {
-            let choice = answers.options   
-    
-            connection.query(`SELECT * FROM ${choice} ;`, function (err, res) {
-                if (err) {
-                    console.error(err.stack)
-                    return;
+    ])
+        .then(function (answers) {
+            connection.connect(function (err) {
+                if (answers.optionsAll === "View all employees") {
+                    console.log(answers.optionsAll)
+                    connection.query(`SELECT * FROM employee`, function (err, res) {
+                        if (err) throw err;
+                        console.table(res)
+                        commenceSequence();
+                    })
+
+
+                } else {
+                    let choice = answers.options
+                    connection.query(`SELECT * FROM ${choice} ;`, function (err, res) {
+                        if (err) {
+                            console.error(err.stack)
+                            return;
+                        }
+                        console.table(res)
+                        commenceSequence();
+
+
+                    })
+
                 }
-                console.table(res)
-                commenceSequence();
-    
+
+
+
+
+
             })
+
+
+
         })
 
 
-    })
 
-
-    
 }
 
 
 
 
 
-
-
-
-
-// {
-//     type: "input",
-//         name: "firstName",
-//             message: "What is the first name?",
-//                 when: function (answers) {
-//                     return answers.what === 'Update Employee Roles' ||
-//                         answers.what === "Add?";
-//                 }
-// },
-// {
-//     type: "input",
-//         name: "lastName",
-//             message: "What is the last name?",
-//                 when: function (answers) {
-//                     return answers.what === 'Update Employee Roles' ||
-//                         answers.what === "Add?";
-//                 }
-// },
-
+//
 
 
 
@@ -174,29 +167,73 @@ function viewEmployee() {
 
 
 function addEmployee(answers) {
-    console.log("addEmployee")
-
-    // connection.connect(function (err) {
-
-    //     if (err) {
-    //         console.error("No Go my guy, failure connecting to database " + err.stack)
-    //         return;
-    //     }
-    //     console.log("EUERKA!!! " + connection.threadId)
-    //     connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)", [answers.firstName, answers.lastName, x], function (err, res) {
-    //         if (err) throw err;
-    //         // connection.end();
-    //         console.log(answers.firstName, "line87")
-    //         console.log("Input received!");
-    //     });
+    connection.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
 
 
-    // });
+        inquirer.prompt([
+
+
+            {
+                type: "input",
+                name: "firstName",
+                message: "What is the employee first name?",
+
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "What is the last name?",
+
+            },
+            {
+                type: "rawlist",
+                name: "select",
+                message: "Which Dept do they work for?",
+                choices: function () {
+                    let selectionArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        selectionArray.push(res[i].dept_name)
+                    }
+                    return selectionArray;
+                }
+            }
+
+        ]).then(function (answers) {
+            console.log(answers.select)
+            let pick = answers.select;
+            if (pick === "Front Desk") {
+                pick = 1
+            } else if (pick === "Housekeeping") {
+                pick = 2
+            } else if (pick === "Sales") {
+                pick = 3
+            } else if (pick === "Engineering") {
+                pick = 4
+            } else {
+                pick = 5
+            }
+
+
+            connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)", [answers.firstName, answers.lastName, pick], function (err, res) {
+                if (err) throw err;
+                // connection.end();
+                console.log(answers.firstName, "line87")
+                console.log("Input received!");
+            });
+
+
+
+            commenceSequence();
+        })
+    })
+
+
 
 }
 
 
-function updateEmployee(){
+function updateEmployee() {
     console.log("updateEmployee")
 }
 
