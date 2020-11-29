@@ -105,7 +105,12 @@ function viewEmployee() {
 
                     if (answers.optionsAll === "View all employees") {
                         console.log(answers.optionsAll)
-                        connection.query(`SELECT * FROM employee`, function (err, res) {
+                        connection.query(`
+                        SELECT 
+                        employee.id, first_name, last_name, title, salary, dept_name
+                        FROM ((role
+                            INNER JOIN department ON department_id = department.id)INNER JOIN employee ON role_id = role.id);
+                        `, function (err, res) {
                             if (err) throw err;
                             console.table(res)
                             commenceSequence();
@@ -225,7 +230,7 @@ function addEmployee(answers) {
                 message: "Please select a role?",
                 choices: function () {
                     let selectionArray = [];
-                    for (let i = 0; i < res.length ; i++) {
+                    for (let i = 0; i < res.length; i++) {
                         selectionArray.push(res[i].title)
                     }
                     return selectionArray;
@@ -234,30 +239,30 @@ function addEmployee(answers) {
 
         ]).then(function (answers) {
 
-            
+
             console.log(answers.select)
             let pick = answers.select;
             if (pick === "Front Desk Agent") {
                 pick = 1
             } else if (pick === "Bellman") {
-                pick = 1
-            } else if (pick === "Concierge") {
-                pick = 1
-            } else if (pick === "Engineer") {
-                pick = 4
-            } else if (pick === "Room Attendant") {
                 pick = 2
-            } else if (pick === "Sales Coordinator") {
+            } else if (pick === "Concierge") {
+                pick = 4
+            } else if (pick === "Engineer") {
                 pick = 3
-            } else {
+            } else if (pick === "Room Attendant") {
                 pick = 5
+            } else if (pick === "Sales Coordinator") {
+                pick = 6
+            } else {
+                pick = 7
             }
-
+            console.log(pick, "line255")
 
             connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)", [answers.firstName, answers.lastName, pick], function (err, res) {
                 if (err) throw err;
                 // connection.end();
-                console.log(answers.firstName, "line87")
+                console.log(answers.firstName, answers.lastName, pick, "line260")
                 console.log("Input received!");
                 commenceSequence();
             });
