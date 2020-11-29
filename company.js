@@ -25,8 +25,9 @@ function commenceSequence() {
         message: 'Welcome to the Company Portal.  What would you like to do?',
         choices: [
             'View?',
-            'Add?',
+            'Add Employee?',
             'Update Employee Roles',
+            'Delete Employee Record',
             'EXIT'
         ],
     })
@@ -38,14 +39,14 @@ function commenceSequence() {
                 addEmployee();
             } else if (answers.what === "Update Employee Roles") {
                 updateEmployee();
-            } else {
+            } else if(answers.what ==="Delete Employee Record") {
+                deleteEmployee();
+            }else {
                 connection.end()
             }
         })
 
 }
-
-
 
 function viewEmployee() {
     connection.query("SELECT * FROM department", function (err, res) {
@@ -61,9 +62,7 @@ function viewEmployee() {
                     'View all employees',
                     'View All Employees by Department'
                 ]
-
             },
-
             {
                 type: "rawlist",
                 name: "select",
@@ -79,14 +78,6 @@ function viewEmployee() {
                     return answers.optionsAll !== "View all employees"
                 }
             }
-
-
-
-
-
-
-
-
         ])
             .then(function (answers) {
                 connection.connect(function (err) {
@@ -116,7 +107,6 @@ function viewEmployee() {
                             commenceSequence();
                         })
 
-
                     } else {
                         let choice = answers.options
                         connection.query(`SELECT first_name, last_name, dept_name
@@ -129,19 +119,11 @@ function viewEmployee() {
                             }
                             console.table(res)
                             commenceSequence();
-
-
                         })
 
                     }
 
-
-
-
-
                 })
-
-
 
             })
 
@@ -149,80 +131,20 @@ function viewEmployee() {
 
 }
 
-
-
-
-
-//
-
-// {
-//     type: "input",
-//     name: "departmentName",
-//     message: "Please enter the Department Name",
-//     when: function (answers) {
-//         return answers.options === 'department';
-
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-// {
-//     type: "rawlist",
-//         name: "departmentType",
-//             message: "Which Dept do they work for?",
-//                 choices: [
-//                     'Front Desk',
-//                     'Housekeeping',
-//                     'Sales',
-//                     "Engineering",
-//                     "Administration"
-//                 ]
-// }
-
-
-
-// ]).then(answers => {
-//     if (answers.what === "Add?") {
-//         addEmployee(answers);
-
-//     } else if (answers.what === "View?") {
-//         viewEmployee(answers);
-//     }
-
-// }).catch(error => {
-//     console.log(error);
-// })
-
-
-
-
 function addEmployee(answers) {
     connection.query("SELECT * FROM role", function (err, res) {
         if (err) throw err;
 
-
         inquirer.prompt([
-
-
             {
                 type: "input",
                 name: "firstName",
                 message: "What is the employee first name?",
-
             },
             {
                 type: "input",
                 name: "lastName",
                 message: "What is the last name?",
-
             },
             {
                 type: "rawlist",
@@ -267,9 +189,6 @@ function addEmployee(answers) {
                 commenceSequence();
             });
 
-
-
-
         })
     })
 
@@ -279,7 +198,131 @@ function addEmployee(answers) {
 
 
 function updateEmployee() {
-    console.log("updateEmployee")
+    let firstName;
+    let lastName
+    connection.query("SELECT employee.id, first_name, last_name, title, salary, dept_name FROM ((role INNER JOIN department ON department_id = department.id) INNER JOIN employee ON role_id = role.id);", function (err, res) {
+        if (err) throw err;
+        console.table(res)
+
+        inquirer.prompt([
+            {
+                type: "rawlist",
+                name: "employees",
+                message: "Please choose and Employee to Update",
+                choices: function () {
+                    let employeeArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        employeeArray.push(res[i].first_name + " " + res[i].last_name)
+                    }
+                    return employeeArray;
+                },
+
+            },
+
+
+        ]).then(function (answers) {
+            let x = answers.employees
+            let y = x.split(" ", 2)
+            console.log(y, "line221")
+            console.log(y[0])
+            console.log(y[1]);
+            firstName = y[0];
+            lastName = y[1];
+
+            console.log(firstName, "line231")
+            console.log(lastName, "232");
+
+            connection.query("SELECT * FROM role;", function (err, res) {
+                if (err) throw err;
+                inquirer.prompt([
+
+                    {
+                        type: "rawlist",
+                        name: "job",
+                        message: "Please Update Job Role",
+                        choices: function () {
+                            let jobArray = [];
+                            for (let i = 0; i < res.length; i++) {
+                                jobArray.push(res[i].title)
+                            }
+                            return jobArray;
+                        },
+                    }
+                ]).then(function (answers) {
+                    console.log(answers.job, "line251")
+
+                    let pick = answers.job;
+                    if (pick === "Front Desk Agent") {
+                        pick = 1
+                    } else if (pick === "Bellman") {
+                        pick = 2
+                    } else if (pick === "Concierge") {
+                        pick = 4
+                    } else if (pick === "Engineer") {
+                        pick = 3
+                    } else if (pick === "Room Attendant") {
+                        pick = 5
+                    } else if (pick === "Sales Coordinator") {
+                        pick = 6
+                    } else {
+                        pick = 7
+                    }
+                    connection.query(
+                        `UPDATE employee 
+                        SET role_id = ${pick} 
+                        WHERE last_name = "${lastName}"`,
+                        function (err) {
+                            if (err) throw err;
+                            console.log("Update Successfull!")
+                            commenceSequence();
+                        }
+
+                    );
+
+
+
+                })
+            })
+        })
+
+    })
 }
 
+function deleteEmployee() {
+
+    connection.query("SELECT employee.id, first_name, last_name, title, salary, dept_name FROM ((role INNER JOIN department ON department_id = department.id) INNER JOIN employee ON role_id = role.id);", function (err, res) {
+        if (err) throw err;
+        console.table(res)
+
+
+        inquirer.prompt(
+            {
+                type: "rawlist",
+                name: "ID",
+                message: "Select Employee ID",
+                choices: function () {
+                    let idArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        idArray.push(res[i].id)
+                    }
+                    return idArray;
+                },
+            }
+
+        ).then(function(answers){
+            console.log(answers.ID)
+            connection.query(
+                `DELETE FROM employee WHERE employee.id = ${answers.ID}`, function(err) {
+                    if (err) throw err;
+                    console.log("Delete Successful!");
+                    commenceSequence();
+                }
+            )
+
+
+        })
+
+    })
+
+}
 
