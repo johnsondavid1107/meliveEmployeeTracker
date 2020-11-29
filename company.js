@@ -233,16 +233,22 @@ function addEmployee(answers) {
             }
 
         ]).then(function (answers) {
+
+            
             console.log(answers.select)
             let pick = answers.select;
-            if (pick === "Front Desk") {
+            if (pick === "Front Desk Agent") {
                 pick = 1
-            } else if (pick === "Housekeeping") {
-                pick = 2
-            } else if (pick === "Sales") {
-                pick = 3
-            } else if (pick === "Engineering") {
+            } else if (pick === "Bellman") {
+                pick = 1
+            } else if (pick === "Concierge") {
+                pick = 1
+            } else if (pick === "Engineer") {
                 pick = 4
+            } else if (pick === "Room Attendant") {
+                pick = 2
+            } else if (pick === "Sales Coordinator") {
+                pick = 3
             } else {
                 pick = 5
             }
